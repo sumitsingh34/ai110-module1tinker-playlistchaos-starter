@@ -7,10 +7,15 @@ from playlist_logic import (
     compute_playlist_stats,
     history_summary,
     lucky_pick,
-    merge_playlists,
     normalize_song,
     search_songs,
 )
+
+
+@st.cache_data
+def build_playlists_cached(songs, profile):
+    """Cached wrapper around build_playlists, keyed on songs and profile."""
+    return build_playlists(songs, profile)
 
 
 def init_state():
@@ -391,14 +396,13 @@ def main():
     profile = st.session_state.profile
     songs = st.session_state.songs
 
-    base_playlists = build_playlists(songs, profile)
-    merged_playlists = merge_playlists(base_playlists, {})
+    playlists = build_playlists_cached(songs, profile)
 
-    playlist_tabs(merged_playlists)
+    playlist_tabs(playlists)
     st.divider()
-    lucky_section(merged_playlists)
+    lucky_section(playlists)
     st.divider()
-    stats_section(merged_playlists)
+    stats_section(playlists)
     st.divider()
     history_section()
 
